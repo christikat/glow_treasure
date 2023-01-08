@@ -2,6 +2,7 @@ local QBCore = exports["qb-core"]:GetCoreObject()
 local scannerScaleform = nil
 local isDigging = false
 local usingScanner = false
+local pedSpawned = false
 local beepWait = 8000
 local scaleformColours = {
     red = {r = 255, g = 10, b = 10},
@@ -283,6 +284,10 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     if usingScanner then
         usingScanner = false
     end
+    if DoesEntityExist(glowPed) then
+        DeleteEntity(glowPed)
+        pedSpawned = false
+    end
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
@@ -290,11 +295,62 @@ AddEventHandler('onResourceStop', function(resourceName)
     local ped = PlayerPedId()
     local _, pedWeapon = GetCurrentPedWeapon(ped)
 
+    if DoesEntityExist(glowPed) then
+        DeleteEntity(glowPed)
+        pedSpawned = false
+    end
+
     if usingScanner and pedWeapon == joaat("weapon_digiscanner") then
         unequipScanner()
         return
     end
+    
 end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    digiPed()   
+end)
+
+AddEventHandler('onResourceStart', function(resource)
+    if GetCurrentResourceName() == resource then
+        digiPed()
+    end
+end)
+
+function digiPed()
+    if pedSpawned then return end
+    RequestModel(Config.Model) while not HasModelLoaded(Config.Model) do Wait(0) end
+    glowPed = CreatePed(0, Config.Model, Config.PedSpawn, false, false) --vec4(-910.81, -370.31, 137.91, 163.22)
+    SetEntityAsMissionEntity(glowPed)
+    SetPedFleeAttributes(glowPed, 0, 0)
+    SetBlockingOfNonTemporaryEvents(glowPed, true)
+    SetEntityInvincible(glowPed, true)
+    FreezeEntityPosition(glowPed, true)
+    TaskStartScenarioInPlace(glowPed, 'WORLD_HUMAN_BUM_WASH', 0, false)
+
+    exports['qb-target']:AddTargetEntity(glowPed, {
+        options = {
+            {
+                type = "server",
+                event = "glow_treasure_sv:buyScanner",
+                icon = "fa-solid fa-square-check",
+                label = "Purchase Scanner",
+            },
+        },
+        distance = 1.5
+    })   
+    pedSpawned = true
+    if Config.PedBlip then
+        if DoesEntityExist(glowPed) then
+            pedLoc = AddBlipForEntity(glowPed)
+            SetBlipSprite(pedLoc, 280)
+            SetBlipColour(pedLoc, 5)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString("Treasure Hunter")
+            EndTextCommandSetBlipName(pedLoc)
+        end
+    end
+end
 
 CreateThread(function()
     local sleep = 5000
