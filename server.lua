@@ -24,6 +24,30 @@ QBCore.Commands.Add("givescanner", "Give Player Treasure Scanner (Admin Only)", 
 
 end, "admin")
 
+RegisterNetEvent("glow_treasure_sv:buyScanner", function()
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local PlyPos = GetEntityCoords(GetPlayerPed(src))
+    local bankBalance = Player.PlayerData.money.bank
+    if #(PlyPos - Config.PedSpawn.xyz) > 5.0 then return end
+    if not Player then return end
+    if Config.ScannerFee then
+        if bankBalance >= Config.ScannerPrice then
+            local info = GenerateScannerMetadata()
+            Player.Functions.AddItem("digiscanner", 1, nil, info)
+            QBCore.Functions.Notify(src, "You purchased a scanner for $"..Config.ScannerPrice, "success")
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["digiscanner"], "add")
+        else
+            QBCore.Functions.Notify(src, "You need $"..Config.ScannerPrice.." to purchase this.", "success")
+        end
+    else
+        local info = GenerateScannerMetadata()
+        Player.Functions.AddItem("digiscanner", 1, nil, info)
+        QBCore.Functions.Notify(src, "You received a scanner.", "success")
+        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["digiscanner"], "add")
+    end
+end)
+
 QBCore.Functions.CreateUseableItem("digiscanner", function(source, item)
     if item.info == nil or item.info.location == nil then 
         QBCore.Functions.Notify(source, "Item metadata error", "error")
