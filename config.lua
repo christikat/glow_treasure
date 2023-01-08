@@ -1,5 +1,15 @@
 Config = {}
 
+Config.Model = `u_m_y_dancerave_01`
+
+Config.PedSpawn = vec4(-1526.77, -1181.94, -0.36, 312.39)
+
+Config.PedBlip = true -- Adds a blip for the ped you purchase the scanner from.
+
+Config.ScannerFee = true -- Set to false if you want the scanner to be FREE.
+
+Config.ScannerPrice = 750 -- $750 from the player's bank.
+
 Config.minRolls = 1
 Config.maxRolls = 3
 
