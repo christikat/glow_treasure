@@ -38,7 +38,7 @@ RegisterNetEvent("glow_treasure_sv:buyScanner", function()
             QBCore.Functions.Notify(src, "You purchased a scanner for $"..Config.ScannerPrice, "success")
             TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["digiscanner"], "add")
         else
-            QBCore.Functions.Notify(src, "You need $"..Config.ScannerPrice.." to purchase this.", "success")
+            QBCore.Functions.Notify(src, "You need $"..Config.ScannerPrice.." to purchase this.", "error")
         end
     else
         local info = GenerateScannerMetadata()
