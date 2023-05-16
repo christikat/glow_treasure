@@ -45,36 +45,16 @@ local function updateScaleformBars(dist)
     if not scannerScaleform then return end
     local scaleformDist = nil
     
-    if dist > 1000 then
-        scaleformDist = 30.0 -- no bars
-        beepWait = 8000
-    elseif dist > 500 then
-        scaleformDist = 40.0 --  1 bar
-        beepWait = 5000
-    elseif dist > 300 then
-        scaleformDist = 50.0 --  2 bars
-        beepWait = 4000
-    elseif dist > 150 then
-        scaleformDist = 60.0 --  3 bars
-        beepWait = 3000
-    elseif dist > 80 then
-        scaleformDist = 70.0 --  4 bars
-        beepWait = 2000
-    elseif dist > 40 then
-        scaleformDist = 80.0 --  5 bars
-        beepWait = 1500
-    elseif dist > 10 then
-        scaleformDist = 90.0 --  6 bars
-        beepWait = 1000
-    else
-        scaleformDist = 100.0 --  7 bars (full)
-        beepWait = 500
+    for i=1, #Config.bars do
+        if dist > Config.bars[i].dist then
+            beepWait = Config.bars[i].beepWait
+            BeginScaleformMovieMethod(scannerScaleform, "SET_DISTANCE")
+            PushScaleformMovieMethodParameterFloat(Config.bars[i].scaleformBars)
+            EndScaleformMovieMethod()
+            break
+        end
     end
-    
-    BeginScaleformMovieMethod(scannerScaleform, "SET_DISTANCE")
-    PushScaleformMovieMethodParameterFloat(scaleformDist)
-    EndScaleformMovieMethod()
-    
+
     if dist < 2.0 then
         beepWait = 250
         setScannerColour(scaleformColours.green, scaleformColours.green)
@@ -99,12 +79,12 @@ RegisterNetEvent("glow_treasure_cl:toggleScanner", function(targetCoords)
     local ped = PlayerPedId()
     local _, pedWeapon = GetCurrentPedWeapon(ped)
 
-    if pedWeapon == joaat("weapon_digiscanner") then
+    if pedWeapon == joaat(Config.scanner) then
         unequipScanner()
         return
     end
 
-    GiveWeaponToPed(ped, joaat("weapon_digiscanner"), 0, true, true)
+    GiveWeaponToPed(ped, joaat(Config.scanner), 0, true, true)
     usingScanner = true
         
     scannerScaleform = RequestScaleformMovie("digiscanner")
@@ -113,17 +93,38 @@ RegisterNetEvent("glow_treasure_cl:toggleScanner", function(targetCoords)
         while not HasScaleformMovieLoaded(scannerScaleform) do
             Wait(0)
         end
+        
+        local scaleformRenderName = nil
+        local scaleformPos = nil
 
-        if not IsNamedRendertargetRegistered("digiscanner") then
-            RegisterNamedRendertarget("digiscanner", 0)
+        if Config.scanner == "WEAPON_METALDETECTOR" then
+            scaleformRenderName = "digiscanner_reh"
+            scaleformPos = {
+                x = 0.21,
+                y = 0.35,
+                width = 0.36,
+                height = 0.7,
+            }
+        else
+            scaleformRenderName = "digiscanner"
+            scaleformPos = {
+                x = 0.1,
+                y = 0.24,
+                width = 0.21,
+                height = 0.51,
+            } 
+        end
+
+        if not IsNamedRendertargetRegistered(scaleformRenderName) then
+            RegisterNamedRendertarget(scaleformRenderName, 0)
         end
        
-        LinkNamedRendertarget(GetWeapontypeModel(joaat("weapon_digiscanner")))
+        LinkNamedRendertarget(GetWeapontypeModel(joaat(Config.scanner)))
        
         local id = 0
        
-        if IsNamedRendertargetRegistered("digiscanner") then
-            id = GetNamedRendertargetRenderId("digiscanner")
+        if IsNamedRendertargetRegistered(scaleformRenderName) then
+            id = GetNamedRendertargetRenderId(scaleformRenderName)
         end
 
         local playerCoords = GetEntityCoords(ped)
@@ -142,7 +143,7 @@ RegisterNetEvent("glow_treasure_cl:toggleScanner", function(targetCoords)
 
         while usingScanner do
             SetTextRenderId(id)
-            DrawScaleformMovie(scannerScaleform, 0.1, 0.24, 0.21, 0.51, 100, 100, 100, 255, 0)
+            DrawScaleformMovie(scannerScaleform, scaleformPos.x, scaleformPos.y, scaleformPos.width, scaleformPos.height, 100, 100, 100, 255, 0)
             SetTextRenderId(1)
 
             if GetGameTimer() - timer > 250 then
@@ -300,7 +301,7 @@ AddEventHandler('onResourceStop', function(resourceName)
         pedSpawned = false
     end
 
-    if usingScanner and pedWeapon == joaat("weapon_digiscanner") then
+    if usingScanner and pedWeapon == joaat(Config.scanner) then
         unequipScanner()
         return
     end

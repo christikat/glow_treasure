@@ -17,7 +17,7 @@ Script that allows players to use a digiscanner to locate treasure.
 ```lua
     RegisterNetEvent('inventory:client:CheckWeapon', function(weaponName)
     -- Start of Added Code
-    if weaponName == "digiscanner" then
+    if weaponName == "digiscanner" or weaponName == "metaldetector" then
         TriggerEvent("glow_treasure_cl:scannerRemoved")
         return
     end
@@ -63,3 +63,5 @@ end)
  local info = exports["glow_treasure"]:GenerateScannerMetadata()
  Player.Functions.AddItem("digiscanner", 1, nil, info)
 ```
+
+- If you have a thread running on your server that disables aim assist, it may interfere with the scanner. See here on how to fix it https://github.com/christikat/glow_treasure/issues/2#issuecomment-1383010029

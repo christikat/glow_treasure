@@ -1,5 +1,8 @@
 Config = {}
 
+Config.scanner = "WEAPON_METALDETECTOR" 
+-- Config.scanner = "WEAPON_DIGISCANNER"
+
 Config.Model = `u_m_y_dancerave_01`
 
 Config.PedSpawn = vec4(-1526.77, -1181.94, -0.36, 312.39)
@@ -12,6 +15,21 @@ Config.ScannerPrice = 750 -- $750 from the player's bank.
 
 Config.minRolls = 1
 Config.maxRolls = 3
+
+Config.bars = {
+    -- digiscanner supports up to 7 bars, while metal detector supports 10
+    {dist = 1000, scaleformBars = 0.0, beepWait = 10000},
+    {dist = 800, scaleformBars = 10.0, beepWait = 9000},
+    {dist = 600, scaleformBars = 20.0, beepWait = 8000},
+    {dist = 500, scaleformBars = 30.0, beepWait = 7000},
+    {dist = 400, scaleformBars = 40.0, beepWait = 6000},
+    {dist = 300, scaleformBars = 50.0, beepWait = 5000},
+    {dist = 150, scaleformBars = 60.0, beepWait = 4000},
+    {dist = 80, scaleformBars = 70.0, beepWait = 3000},
+    {dist = 40, scaleformBars = 80.0, beepWait = 2000},
+    {dist = 10, scaleformBars = 90.0, beepWait = 1000},
+    {dist = 0, scaleformBars = 100.0, beepWait = 500},
+}
 
 Config.loot = {
     {item = "10kgoldchain", min = 1, max = 3},
